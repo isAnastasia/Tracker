@@ -30,6 +30,7 @@ final class TabBarController: UITabBarController {
             image: UIImage(named: "trackerTabBarActive"),
             selectedImage: nil
         )
+        let navViewController = UINavigationController(rootViewController: trackerViewController)
         
         //create tab2
         let statisticsViewController = StatisticsViewController()
@@ -38,7 +39,7 @@ final class TabBarController: UITabBarController {
             image: UIImage(named: "statTabBar"),
             selectedImage: nil)
         
-        self.viewControllers = [trackerViewController, statisticsViewController]
+        self.viewControllers = [navViewController, statisticsViewController]
         
     }
 }
