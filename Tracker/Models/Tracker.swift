@@ -15,14 +15,15 @@ public struct Tracker {
     let emoji: String
     let schedule: [Days]
     
-    enum Days {
-        case monday, tuesday, wednesday, thursday, friday, saturday, sunday
-    }
-    
     init(name: String, color: UIColor, emoji: String, schedule: [Days]) {
         self.name = name
         self.color = color
         self.emoji = emoji
         self.schedule = schedule
     }
+}
+
+
+enum Days {
+    case monday, tuesday, wednesday, thursday, friday, saturday, sunday
 }
