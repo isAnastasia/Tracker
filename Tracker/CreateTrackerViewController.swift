@@ -16,6 +16,7 @@ final class CreateTrackerViewController: UIViewController {
         super.viewDidLoad()
         self.title = "Создание трекера"
         
+        view.backgroundColor = .white
         setUpNewHabbitButton()
         setUpNewEventButton()
     }
@@ -60,6 +61,10 @@ final class CreateTrackerViewController: UIViewController {
     }
     
     @objc func newHabbitPressed() {
+        let vc = CreateHabitViewController()
+        let nc = UINavigationController(rootViewController: vc)
+        
+        self.navigationController?.present(nc, animated: true)
         
     }
     

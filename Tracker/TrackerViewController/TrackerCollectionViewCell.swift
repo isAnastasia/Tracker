@@ -11,9 +11,6 @@ import UIKit
 final class TrackerCollectionViewCell: UICollectionViewCell {
     static let identifier = "TrackerCell"
     
-//    var emoji: String = "😻"
-//    var text: String = "Полить цветы"
-//    var color: UIColor = UIColor.orange
     var emoji: String? {
         didSet {
             emojiLabel.text = emoji
@@ -96,6 +93,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         //addButton.backgroundColor = color
         addButton.layer.cornerRadius = 17
         addButton.tintColor = UIColor.white
+        addButton.addTarget(self, action: #selector(buttonClicked), for: .touchUpInside)
         addButton.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
@@ -104,6 +102,20 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
             addButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
             addButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12)
         ])
+    }
+    @objc
+    func buttonClicked() {
+        if addButton.currentImage == UIImage(systemName: "plus") {
+            addButton.setImage(UIImage(named: "Done"), for: .normal)
+            addButton.backgroundColor = color?.withAlphaComponent(0.3)
+            
+            // увеличить счетчик
+        } else {
+            addButton.setImage(UIImage(systemName: "plus"), for: .normal)
+            addButton.backgroundColor = color
+            // уменьшить счетчик
+        }
+        
     }
     
     private func setUpPinImageView() {

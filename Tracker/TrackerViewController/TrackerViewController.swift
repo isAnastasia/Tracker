@@ -10,7 +10,13 @@ import UIKit
 final class TrackerViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     var categories: [TrackerCategory] = []
+    
+    lazy var currentCategories: [TrackerCategory] = {
+        filterCategoriesToshow()
+    }()
+    
     var completedTrackers: [TrackerRecord]?
+    var currentDate = Date()
 
     private var label = UILabel()
     private var navigationBar: UINavigationBar?
@@ -39,10 +45,16 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
         
         let track3 = Tracker(name: "Не есть сладкое", color: UIColor(named: "Fuchsia") ?? UIColor.systemPink, emoji: "💦", schedule: [Days.monday, Days.tuesday, Days.wednesday, Days.thursday, Days.friday])
         let track4 = Tracker(name: "Сходить ко врачу", color: UIColor(named: "Green") ??  UIColor.green, emoji: "🖐️", schedule: [Days.wednesday])
-        categories.append(TrackerCategory(title: "Здоровье", trackers: [track3, track4]))
+        let track5 = Tracker(
+            name: "Пробежать 10 км",
+            color: UIColor(named: "Red") ?? UIColor.red,
+            emoji: "⚽",
+            schedule: [Days.sunday])
+        categories.append(TrackerCategory(title: "Здоровье", trackers: [track3, track4, track5]))
     }
     
     private func initCollection() {
+        collectionView.backgroundColor = .white
         collectionView.register(TrackerCollectionViewCell.self, forCellWithReuseIdentifier: TrackerCollectionViewCell.identifier)
         collectionView.register(HeaderCollectionReusableView.self,
                                 forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
@@ -63,9 +75,19 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
         ])
     }
     
+    private func showPlaceHolder() {
+        let backgroundView = PlaceHolderView(frame: collectionView.frame)
+        backgroundView.setUpNoTrackersState()
+        collectionView.backgroundView = backgroundView
+    
+    }
+    
     // MARK: - Data Source
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return categories[0].trackers.count
+        
+        //return categories[section].trackers.count
+        
+        return currentCategories[section].trackers.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -74,7 +96,8 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
         }
         cell.prepareForReuse()
         
-        let track = categories[indexPath.section].trackers[indexPath.row]
+        //let track = categories[indexPath.section].trackers[indexPath.row]
+        let track = currentCategories[indexPath.section].trackers[indexPath.row]
         cell.text = track.name
         cell.color = track.color
         cell.emoji = track.emoji
@@ -83,10 +106,13 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
         return cell
     }
     
-    // MARK: - have no clue
-    
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return categories.count
+        if (currentCategories.count == 0) {
+            showPlaceHolder()
+        } else {
+            collectionView.backgroundView = nil
+        }
+        return currentCategories.count
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -104,6 +130,8 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
         }
         return UICollectionReusableView()
     }
+    
+    // MARK: - have no clue
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         return CGSize(width: collectionView.bounds.width, height: 46)
@@ -149,8 +177,7 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
     private func addHabit() {
         let createTrackerViewController = CreateTrackerViewController()
         let ncCreateTracker = UINavigationController(rootViewController: createTrackerViewController)
-        
-        //createTrackerViewController.isModalInPresentation = true
+
         navigationController?.present(ncCreateTracker, animated: true)
         
     }
@@ -163,8 +190,35 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
         dateFormatter.dateFormat = "dd.MM.yyyy" // Формат даты
         let formattedDate = dateFormatter.string(from: selectedDate)
         print("Выбранная дата: \(formattedDate)")
+        
+        //change currentDate
+        currentDate = selectedDate
+        updateCollection()
+    }
+    
+    private func filterCategoriesToshow() -> [TrackerCategory] {
+        currentCategories = []
+        let weekdayInt = Calendar.current.component(.weekday, from: currentDate)
+        let day = Days(rawValue: weekdayInt)
+        
+        categories.forEach { category in
+            let title = category.title
+            let trackers = category.trackers.filter { tracker in
+                tracker.schedule.contains(day!)
+            }
+            
+            if trackers.count > 0 {
+                currentCategories.append(TrackerCategory(title: title, trackers: trackers))
+            }
+        }
+        
+        return currentCategories
     }
 
-
+    private func updateCollection() {
+        currentCategories = filterCategoriesToshow()
+        collectionView.reloadData()
+        
+    }
 }
 

@@ -24,6 +24,12 @@ public struct Tracker {
 }
 
 
-enum Days {
-    case monday, tuesday, wednesday, thursday, friday, saturday, sunday
+enum Days: Int {
+    case sunday = 1
+    case monday
+    case tuesday
+    case wednesday
+    case thursday
+    case friday
+    case saturday
 }
