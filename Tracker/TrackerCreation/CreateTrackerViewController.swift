@@ -61,14 +61,15 @@ final class CreateTrackerViewController: UIViewController {
     }
     
     @objc func newHabbitPressed() {
-        let vc = CreateHabitViewController()
-        let nc = UINavigationController(rootViewController: vc)
+        let vc = NewHabitCreationViewController()
+        //let nc = UINavigationController(rootViewController: vc)
         
-        self.navigationController?.present(nc, animated: true)
+        //self.navigationController?.present(nc, animated: true)
+        self.navigationController?.pushViewController(vc, animated: true)
         
     }
     
     @objc func newEventPressed() {
-        
+        //TODO
     }
 }

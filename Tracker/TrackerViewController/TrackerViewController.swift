@@ -39,17 +39,17 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
         
     }
     private func initCategories() {
-        let track1 = Tracker(name: "Ходить в спортзал", color: UIColor(named: "Blue") ?? UIColor.blue, emoji: "😎", schedule: [Days.monday, Days.friday])
-        let track2 = Tracker(name: "Прочитать 10 страниц", color: UIColor(named: "Orange") ?? UIColor.orange, emoji: "👻", schedule: [Days.tuesday, Days.friday])
+        let track1 = Tracker(name: "Ходить в спортзал", color: UIColor(named: "Blue") ?? UIColor.blue, emoji: "😎", schedule: [WeekDays.monday, WeekDays.friday])
+        let track2 = Tracker(name: "Прочитать 10 страниц", color: UIColor(named: "Orange") ?? UIColor.orange, emoji: "👻", schedule: [WeekDays.tuesday, WeekDays.friday])
         categories.append(TrackerCategory(title: "Привычки", trackers: [track1, track2]))
         
-        let track3 = Tracker(name: "Не есть сладкое", color: UIColor(named: "Fuchsia") ?? UIColor.systemPink, emoji: "💦", schedule: [Days.monday, Days.tuesday, Days.wednesday, Days.thursday, Days.friday])
-        let track4 = Tracker(name: "Сходить ко врачу", color: UIColor(named: "Green") ??  UIColor.green, emoji: "🖐️", schedule: [Days.wednesday])
+        let track3 = Tracker(name: "Не есть сладкое", color: UIColor(named: "Fuchsia") ?? UIColor.systemPink, emoji: "💦", schedule: [WeekDays.monday, WeekDays.tuesday, WeekDays.wednesday, WeekDays.thursday, WeekDays.friday])
+        let track4 = Tracker(name: "Сходить ко врачу", color: UIColor(named: "Green") ??  UIColor.green, emoji: "🖐️", schedule: [WeekDays.wednesday])
         let track5 = Tracker(
             name: "Пробежать 10 км",
             color: UIColor(named: "Red") ?? UIColor.red,
             emoji: "⚽",
-            schedule: [Days.sunday])
+            schedule: [WeekDays.sunday])
         categories.append(TrackerCategory(title: "Здоровье", trackers: [track3, track4, track5]))
     }
     
@@ -199,7 +199,8 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
     private func filterCategoriesToshow() -> [TrackerCategory] {
         currentCategories = []
         let weekdayInt = Calendar.current.component(.weekday, from: currentDate)
-        let day = Days(rawValue: weekdayInt)
+        print(weekdayInt)
+        let day = (weekdayInt == 1) ?  WeekDays(rawValue: 7) : WeekDays(rawValue: weekdayInt - 1)
         
         categories.forEach { category in
             let title = category.title
