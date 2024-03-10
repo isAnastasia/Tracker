@@ -10,8 +10,8 @@ import UIKit
 
 
 final class ButtonTableViewCell: UITableViewCell {
-    static let identifier = "ButtonTableViewCell"
     
+    static let identifier = "ButtonTableViewCell"
     let titleLabel = UILabel()
     private let subtitleLabel = UILabel()
     private let stackView = UIStackView()
@@ -29,6 +29,24 @@ final class ButtonTableViewCell: UITableViewCell {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func setUpSubtitleLabel(text: String) {
+        if (text.count > 0) {
+            subtitleLabel.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+            subtitleLabel.text = text
+            subtitleLabel.textColor = .gray
+            
+            subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                subtitleLabel.heightAnchor.constraint(equalToConstant: 22)
+            ])
+            stackView.addArrangedSubview(subtitleLabel)
+        } else {
+            subtitleLabel.text = ""
+            stackView.removeArrangedSubview(subtitleLabel)
+        }
+        
     }
     
     private func setUpTitleLabel() {
@@ -51,23 +69,5 @@ final class ButtonTableViewCell: UITableViewCell {
             stackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -41),
             stackView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
         ])
-    }
-    
-    func setUpSubtitleLabel(text: String) {
-        if (text.count > 0) {
-            subtitleLabel.font = UIFont.systemFont(ofSize: 17, weight: .regular)
-            subtitleLabel.text = text
-            subtitleLabel.textColor = .gray
-            
-            subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
-            NSLayoutConstraint.activate([
-                subtitleLabel.heightAnchor.constraint(equalToConstant: 22)
-            ])
-            stackView.addArrangedSubview(subtitleLabel)
-        } else {
-            subtitleLabel.text = ""
-            stackView.removeArrangedSubview(subtitleLabel)
-        }
-        
     }
 }

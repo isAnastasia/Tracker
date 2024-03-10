@@ -90,7 +90,6 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     private func setUpAddButton() {
         contentView.addSubview(addButton)
         addButton.setImage(UIImage(systemName: "plus"), for: .normal)
-        //addButton.backgroundColor = color
         addButton.layer.cornerRadius = 17
         addButton.tintColor = UIColor.white
         addButton.addTarget(self, action: #selector(buttonClicked), for: .touchUpInside)
@@ -132,7 +131,6 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     
     private func setUpTitle() {
         card.addSubview(titleLabel)
-        //titleLabel.text = text
         titleLabel.textColor = .white
         titleLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         titleLabel.numberOfLines = 2
@@ -161,7 +159,6 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     }
     
     private func setUpCard() {
-        //card.backgroundColor = color
         card.layer.cornerRadius = 16
         card.layer.masksToBounds = true
         

@@ -15,7 +15,6 @@ class HeaderCollectionReusableView: UICollectionReusableView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         addSubview(headerLabel)
-        //backgroundColor = .red
         
         headerLabel.font = UIFont.systemFont(ofSize: 19, weight: .bold)
         headerLabel.translatesAutoresizingMaskIntoConstraints = false

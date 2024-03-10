@@ -10,9 +10,6 @@ import UIKit
 
 
 final class NewHabitCreationViewController: CreationTrackerViewController {
-    private var selectedWeekDays: Set<WeekDays> = []
-    private var trackerName: String = String()
-    private var trackerCategory: String = String()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -21,7 +18,7 @@ final class NewHabitCreationViewController: CreationTrackerViewController {
     
     override func configureButtonsCell(cell: ButtonsCell) {
         cell.prepareForReuse()
-        cell.delegate = self
+        cell.scheduleDelegate = self
         cell.state = .Habit
     }
     
@@ -33,6 +30,19 @@ final class NewHabitCreationViewController: CreationTrackerViewController {
     
     override func calculateTableViewHeight(width: CGFloat) -> CGSize {
         return CGSize(width: width, height: 150)
+    }
+    
+    override func checkIfSaveButtonCanBePressed() {
+        if trackerName != nil,
+           selectedEmoji != nil,
+           selectedColor != nil,
+           trackerCategory != nil,
+           !selectedWeekDays.isEmpty
+        {
+            saveButtonCanBePressed = true
+        } else {
+            saveButtonCanBePressed = false
+        }
     }
     
     
@@ -54,22 +64,18 @@ final class NewHabitCreationViewController: CreationTrackerViewController {
     }
 }
 
+//MARK: - ShowScheduleDelegate
 
-
-//MARK: - NewHabitCreationDelegate
-
-extension NewHabitCreationViewController: NewHabitCreationDelegate {
-    func showCategoriesViewController() {
-        // TODO
-    }
-
+extension NewHabitCreationViewController: ShowScheduleDelegate {
     func showScheduleViewController(viewController: ScheduleViewController) {
         viewController.sheduleDelegate = self
         viewController.selectedDays = selectedWeekDays
         navigationController?.pushViewController(viewController, animated: true)
     }
-
 }
+
+
+//MARK: - ScheduleProtocol
 
 extension NewHabitCreationViewController: ScheduleProtocol {
     func saveSelectedDays(selectedDays: Set<WeekDays>) {

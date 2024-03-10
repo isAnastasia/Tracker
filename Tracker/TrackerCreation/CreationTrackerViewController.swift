@@ -9,32 +9,50 @@ import Foundation
 import UIKit
 
 class CreationTrackerViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-    private let allEmojies = [ "🙂", "😻", "🌺", "🐶", "❤️", "😱",
-                               "😇", "😡", "🥶", "🤔", "🙌", "🍔",
-                               "🥦", "🏓", "🥇", "🎸", "🏝️", "😪"]
     
-    private let allColors = [UIColor.color1, .color2, .color3, .color4, .color5, .color6,
-                             .color7, .color8, .color9, .color10, .color11, .color12,
-                             .color13, .color14, .color15, .color16, .color17, .color18]
+    var selectedWeekDays: Set<WeekDays> = [] {
+        didSet {
+            print("days checked")
+            checkIfSaveButtonCanBePressed()
+        }
+    }
+    var trackerCategory = "Работа" {
+        didSet {
+            print("category checked")
+            checkIfSaveButtonCanBePressed()
+        }
+    }
     
-    var selectedEmoji: String = String()
-    var selectedColor: UIColor = UIColor()
-    
-    private let stackView = UIStackView()
-    private let saveButton = UIButton()
-    private let cancelButton = UIButton()
-    private var saveButtonCanBePressed: Bool? {
+    var trackerName: String? {
+        didSet {
+            print("name checked")
+            checkIfSaveButtonCanBePressed()
+        }
+    }
+    var selectedEmoji: String? {
+        didSet {
+            print("emoji checked")
+            checkIfSaveButtonCanBePressed()
+        }
+    }
+    var selectedColor: UIColor? {
+        didSet {
+            print("color checked")
+            checkIfSaveButtonCanBePressed()
+        }
+    }
+    var saveButtonCanBePressed: Bool? {
         didSet {
             switch saveButtonCanBePressed {
             case true:
                 saveButton.backgroundColor = .black
+                saveButton.isEnabled = true
             case false:
                 saveButton.backgroundColor = .lightGray
-            
-            case .none:
+                saveButton.isEnabled = false
+            default:
                 saveButton.backgroundColor = .lightGray
-            case .some(_):
-                saveButton.backgroundColor = .black
+                saveButton.isEnabled = false
             }
         }
     }
@@ -44,6 +62,18 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         return collectionView
     }()
+    
+    private let stackView = UIStackView()
+    private let saveButton = UIButton()
+    private let cancelButton = UIButton()
+
+    private let allEmojies = [ "🙂", "😻", "🌺", "🐶", "❤️", "😱",
+                               "😇", "😡", "🥶", "🤔", "🙌", "🍔",
+                               "🥦", "🏓", "🥇", "🎸", "🏝️", "😪"]
+    
+    private let allColors = [UIColor.color1, .color2, .color3, .color4, .color5, .color6,
+                             .color7, .color8, .color9, .color10, .color11, .color12,
+                             .color13, .color14, .color15, .color16, .color17, .color18]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -65,23 +95,13 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
     }
     
     @objc
-    private func calcelButtonPressed() {
+    private func cancelButtonPressed() {
         dismiss(animated: true)
     }
     
     @objc
     private func saveButtonPressed() {
-        //create habit
         
-    }
-    private func configureEmojiCell(cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: EmojiCell.identifier, for: indexPath) as? EmojiCell else {
-            return UICollectionViewCell()
-        }
-        
-        cell.label.text = allEmojies[indexPath.row]
-        
-        return cell
     }
     
     //MARK: - Data Source
@@ -105,6 +125,7 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: NameTrackerCell.identifier, for: indexPath) as? NameTrackerCell else {
                 return UICollectionViewCell()
             }
+            cell.delegate = self
             cell.prepareForReuse()
             return cell
             
@@ -161,6 +182,16 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
         
     }
     
+    private func configureEmojiCell(cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: EmojiCell.identifier, for: indexPath) as? EmojiCell else {
+            return UICollectionViewCell()
+        }
+        
+        cell.label.text = allEmojies[indexPath.row]
+        
+        return cell
+    }
+    
     //MARK: - Must Be Overridden
     func configureButtonsCell(cell: ButtonsCell) {
         preconditionFailure("This method must be overridden")
@@ -171,6 +202,10 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
     }
     
     func calculateTableViewHeight(width: CGFloat) -> CGSize {
+        preconditionFailure("This method must be overridden")
+    }
+    
+    func checkIfSaveButtonCanBePressed() {
         preconditionFailure("This method must be overridden")
     }
 
@@ -224,18 +259,25 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
                 collectionView.deselectItem(at: indexPath, animated: true)
                 return
             }
-            //cell.isSelected = true
             guard let emoji = cell.label.text else {
                 return
             }
             selectedEmoji = emoji
             
         } else if indexPath.section == 3 {
-            
+            guard let cell = collectionView.cellForItem(at: indexPath) as? ColorCell else {
+                collectionView.deselectItem(at: indexPath, animated: true)
+                return
+            }
+            guard let color = cell.colorView.backgroundColor else {
+                return
+            }
+            selectedColor = color
         } else {
             collectionView.deselectItem(at: indexPath, animated: true)
         }
     }
+    
     
     //MARK: - Collection initialisation
     private func initCollection() {
@@ -258,7 +300,7 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
             collectionView.topAnchor.constraint(equalTo:  view.safeAreaLayoutGuide.topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: stackView.topAnchor)
+            collectionView.bottomAnchor.constraint(equalTo: stackView.topAnchor, constant: -16)
         ])
         
     }
@@ -284,9 +326,9 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
         cancelButton.layer.masksToBounds = true
         cancelButton.layer.cornerRadius = 16
         cancelButton.layer.borderWidth = 1
-        cancelButton.layer.borderColor = UIColor.red.cgColor
+        cancelButton.layer.borderColor = UIColor.ypRed.cgColor
         cancelButton.backgroundColor = .white
-        cancelButton.addTarget(self, action: #selector(calcelButtonPressed), for: .touchUpInside)
+        cancelButton.addTarget(self, action: #selector(cancelButtonPressed), for: .touchUpInside)
         
         cancelButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -316,3 +358,22 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
     }
 }
 
+//MARK: - SaveNameTrackerDelegate
+
+extension CreationTrackerViewController: SaveNameTrackerDelegate {
+    func textFieldWasChanged(text: String) {
+        if text == "" {
+            trackerName = nil
+            return
+        }
+        trackerName = text
+    }
+}
+
+//MARK: - ShowCategoriesDelegate
+
+extension CreationTrackerViewController: ShowCategoriesDelegate {
+    func showCategoriesViewController() {
+        // TODO
+    }
+}

@@ -17,13 +17,10 @@ final class TabBarController: UITabBarController {
                 UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
             }
         }
-        
-        setupTabs()
-        
+        setupTabs()      
     }
     
     private func setupTabs() {
-        //create tab1
         let trackerViewController = TrackerViewController()
         trackerViewController.tabBarItem = UITabBarItem(
             title: "Трекеры",
@@ -32,7 +29,6 @@ final class TabBarController: UITabBarController {
         )
         let navViewController = UINavigationController(rootViewController: trackerViewController)
         
-        //create tab2
         let statisticsViewController = StatisticsViewController()
         statisticsViewController.tabBarItem = UITabBarItem(
             title: "Статистика",
@@ -40,6 +36,5 @@ final class TabBarController: UITabBarController {
             selectedImage: nil)
         
         self.viewControllers = [navViewController, statisticsViewController]
-        
     }
 }

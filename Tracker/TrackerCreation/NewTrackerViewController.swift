@@ -21,13 +21,25 @@ final class NewTrackerViewController: UIViewController {
         setUpNewEventButton()
     }
     
+    @objc
+    private func newHabbitPressed() {
+        let vc = NewHabitCreationViewController()
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    @objc
+    private func newEventPressed() {
+        let vc = NewEventCreationViewController()
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
+    
     private func setUpNewEventButton() {
         view.addSubview(newEventButton)
         
         newEventButton.setTitle("Нерегулярное событие", for: .normal)
         newEventButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         newEventButton.titleLabel?.textColor = .white
-        newEventButton.backgroundColor = UIColor(named: "YP Black") ?? .black
+        newEventButton.backgroundColor = UIColor.ypBlack
         newEventButton.layer.cornerRadius = 16
         newEventButton.addTarget(self, action: #selector(newEventPressed), for: .touchUpInside)
         
@@ -46,7 +58,7 @@ final class NewTrackerViewController: UIViewController {
         newHabbitButton.setTitle("Привычка", for: .normal)
         newHabbitButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         newHabbitButton.titleLabel?.textColor = .white
-        newHabbitButton.backgroundColor = UIColor(named: "YP Black") ?? .black
+        newHabbitButton.backgroundColor = UIColor.ypBlack
         newHabbitButton.layer.cornerRadius = 16
         newHabbitButton.addTarget(self, action: #selector(newHabbitPressed), for: .touchUpInside)
         
@@ -57,21 +69,5 @@ final class NewTrackerViewController: UIViewController {
             newHabbitButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
             newHabbitButton.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
-        
-    }
-    
-    @objc func newHabbitPressed() {
-        let vc = NewHabitCreationViewController()
-        //let nc = UINavigationController(rootViewController: vc)
-        
-        //self.navigationController?.present(nc, animated: true)
-        self.navigationController?.pushViewController(vc, animated: true)
-        
-    }
-    
-    @objc func newEventPressed() {
-        //TODO
-        let vc = NewEventCreationViewController()
-        self.navigationController?.pushViewController(vc, animated: true)
     }
 }

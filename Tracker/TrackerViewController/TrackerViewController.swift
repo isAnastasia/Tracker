@@ -9,24 +9,22 @@ import UIKit
 
 final class TrackerViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
-    var categories: [TrackerCategory] = []
-    
     lazy var currentCategories: [TrackerCategory] = {
         filterCategoriesToshow()
     }()
-    
+    var categories: [TrackerCategory] = []
     var completedTrackers: [TrackerRecord]?
     var currentDate = Date()
-
-    private var label = UILabel()
-    private var navigationBar: UINavigationBar?
-    private let datePicker = UIDatePicker()
     
     let collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         return collectionView
     }()
+
+    private var label = UILabel()
+    private var navigationBar: UINavigationBar?
+    private let datePicker = UIDatePicker()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,58 +33,10 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
         initCategories()
         initCollection()
         setUpNavigationBar()
-        
-        
-    }
-    private func initCategories() {
-        let track1 = Tracker(name: "Ходить в спортзал", color: UIColor(named: "Blue") ?? UIColor.blue, emoji: "😎", schedule: [WeekDays.monday, WeekDays.friday])
-        let track2 = Tracker(name: "Прочитать 10 страниц", color: UIColor(named: "Orange") ?? UIColor.orange, emoji: "👻", schedule: [WeekDays.tuesday, WeekDays.friday])
-        categories.append(TrackerCategory(title: "Привычки", trackers: [track1, track2]))
-        
-        let track3 = Tracker(name: "Не есть сладкое", color: UIColor(named: "Fuchsia") ?? UIColor.systemPink, emoji: "💦", schedule: [WeekDays.monday, WeekDays.tuesday, WeekDays.wednesday, WeekDays.thursday, WeekDays.friday])
-        let track4 = Tracker(name: "Сходить ко врачу", color: UIColor(named: "Green") ??  UIColor.green, emoji: "🖐️", schedule: [WeekDays.wednesday])
-        let track5 = Tracker(
-            name: "Пробежать 10 км",
-            color: UIColor(named: "Red") ?? UIColor.red,
-            emoji: "⚽",
-            schedule: [WeekDays.sunday])
-        categories.append(TrackerCategory(title: "Здоровье", trackers: [track3, track4, track5]))
-    }
-    
-    private func initCollection() {
-        collectionView.backgroundColor = .white
-        collectionView.register(TrackerCollectionViewCell.self, forCellWithReuseIdentifier: TrackerCollectionViewCell.identifier)
-        collectionView.register(HeaderCollectionReusableView.self,
-                                forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
-                                withReuseIdentifier: HeaderCollectionReusableView.identifier)
-        
-        view.addSubview(collectionView)
-        
-        collectionView.dataSource = self
-        collectionView.delegate = self
-        
-        //collectionView.backgroundColor = .purple
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo:  view.safeAreaLayoutGuide.topAnchor),
-            collectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            collectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
-        ])
-    }
-    
-    private func showPlaceHolder() {
-        let backgroundView = PlaceHolderView(frame: collectionView.frame)
-        backgroundView.setUpNoTrackersState()
-        collectionView.backgroundView = backgroundView
-    
     }
     
     // MARK: - Data Source
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        
-        //return categories[section].trackers.count
-        
         return currentCategories[section].trackers.count
     }
     
@@ -96,12 +46,10 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
         }
         cell.prepareForReuse()
         
-        //let track = categories[indexPath.section].trackers[indexPath.row]
         let track = currentCategories[indexPath.section].trackers[indexPath.row]
         cell.text = track.name
         cell.color = track.color
         cell.emoji = track.emoji
-        
         
         return cell
     }
@@ -130,13 +78,7 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
         }
         return UICollectionReusableView()
     }
-    
-    // MARK: - have no clue
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: collectionView.bounds.width, height: 46)
-    }
-    
+ 
     // MARK: - Delegate
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let availableWidth = collectionView.frame.width - 16 * 2 - 9
@@ -152,8 +94,55 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
         return 9
     }
     
-    // MARK: - Private Functions
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        return CGSize(width: collectionView.bounds.width, height: 46)
+    }
     
+// MARK: - Private Functions
+    
+    private func initCategories() {
+        let track1 = Tracker(name: "Ходить в спортзал", color: UIColor(named: "Blue") ?? UIColor.blue, emoji: "😎", schedule: [WeekDays.monday, WeekDays.friday])
+        let track2 = Tracker(name: "Прочитать 10 страниц", color: UIColor(named: "Orange") ?? UIColor.orange, emoji: "👻", schedule: [WeekDays.tuesday, WeekDays.friday])
+        categories.append(TrackerCategory(title: "Привычки", trackers: [track1, track2]))
+        
+        let track3 = Tracker(name: "Не есть сладкое", color: UIColor(named: "Fuchsia") ?? UIColor.systemPink, emoji: "💦", schedule: [WeekDays.monday, WeekDays.tuesday, WeekDays.wednesday, WeekDays.thursday, WeekDays.friday])
+        let track4 = Tracker(name: "Сходить ко врачу", color: UIColor(named: "Green") ??  UIColor.green, emoji: "🖐️", schedule: [WeekDays.wednesday])
+        let track5 = Tracker(
+            name: "Пробежать 10 км",
+            color: UIColor(named: "Red") ?? UIColor.red,
+            emoji: "⚽",
+            schedule: [WeekDays.sunday])
+        categories.append(TrackerCategory(title: "Здоровье", trackers: [track3, track4, track5]))
+    }
+    
+    //MARK: - Collection Initialization
+    private func initCollection() {
+        collectionView.backgroundColor = .white
+        collectionView.register(TrackerCollectionViewCell.self, forCellWithReuseIdentifier: TrackerCollectionViewCell.identifier)
+        collectionView.register(HeaderCollectionReusableView.self,
+                                forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+                                withReuseIdentifier: HeaderCollectionReusableView.identifier)
+        
+        view.addSubview(collectionView)
+        
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo:  view.safeAreaLayoutGuide.topAnchor),
+            collectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            collectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+        ])
+    }
+    
+    private func showPlaceHolder() {
+        let backgroundView = PlaceHolderView(frame: collectionView.frame)
+        backgroundView.setUpNoTrackersState()
+        collectionView.backgroundView = backgroundView
+    
+    }
     private func setUpNavigationBar() {
         navigationBar = navigationController?.navigationBar
         let addButton = UIBarButtonItem(image:  UIImage(named: "addButton") ?? UIImage(systemName: "plus"), style: .plain, target: self, action: #selector(addHabit))
@@ -179,19 +168,16 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
         let ncCreateTracker = UINavigationController(rootViewController: createTrackerViewController)
 
         navigationController?.present(ncCreateTracker, animated: true)
-        
     }
     
     @objc
-    func datePickerValueChanged(_ sender: UIDatePicker) {
+    private func datePickerValueChanged(_ sender: UIDatePicker) {
         let selectedDate = sender.date
         let dateFormatter = DateFormatter()
-        //dateFormatter.dateStyle = .short
-        dateFormatter.dateFormat = "dd.MM.yyyy" // Формат даты
+        dateFormatter.dateFormat = "dd.MM.yyyy"
         let formattedDate = dateFormatter.string(from: selectedDate)
         print("Выбранная дата: \(formattedDate)")
         
-        //change currentDate
         currentDate = selectedDate
         updateCollection()
     }
@@ -219,7 +205,6 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
     private func updateCollection() {
         currentCategories = filterCategoriesToshow()
         collectionView.reloadData()
-        
     }
 }
 

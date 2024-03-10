@@ -9,8 +9,6 @@ import Foundation
 import UIKit
 
 final class NewEventCreationViewController: CreationTrackerViewController {
-    private var trackerName: String = String()
-    private var trackerCategory: String = String()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -18,7 +16,7 @@ final class NewEventCreationViewController: CreationTrackerViewController {
     
     override func configureButtonsCell(cell: ButtonsCell) {
         cell.prepareForReuse()
-        cell.delegate = self
+        //cell.scheduleDelegate = self
         cell.state = .Event
     }
     
@@ -32,15 +30,26 @@ final class NewEventCreationViewController: CreationTrackerViewController {
         return CGSize(width: width, height: 75)
     }
     
+    override func checkIfSaveButtonCanBePressed() {
+        if trackerName != nil,
+           selectedEmoji != nil,
+           selectedColor != nil,
+           trackerCategory != nil
+        {
+            saveButtonCanBePressed = true
+        } else {
+            saveButtonCanBePressed = false
+        }
+    }
+    
 }
 
-extension NewEventCreationViewController: NewHabitCreationDelegate {
-    func showCategoriesViewController() {
-        // TODO
-    }
-
-    func showScheduleViewController(viewController: ScheduleViewController) {
-        // NOTHING
-    }
-
-}
+//extension NewEventCreationViewController: ShowScheduleDelegate {
+//    func showCategoriesViewController() {
+//        // TODO
+//    }
+//
+//    func showScheduleViewController(viewController: ScheduleViewController) {
+//        // NOTHING
+//    }
+//}
