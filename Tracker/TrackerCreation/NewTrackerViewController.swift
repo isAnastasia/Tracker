@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-final class CreateTrackerViewController: UIViewController {
+final class NewTrackerViewController: UIViewController {
     private var newHabbitButton = UIButton()
     private var newEventButton = UIButton()
     
@@ -71,5 +71,7 @@ final class CreateTrackerViewController: UIViewController {
     
     @objc func newEventPressed() {
         //TODO
+        let vc = NewEventCreationViewController()
+        self.navigationController?.pushViewController(vc, animated: true)
     }
 }

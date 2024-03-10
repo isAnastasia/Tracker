@@ -175,7 +175,7 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
     
     @objc
     private func addHabit() {
-        let createTrackerViewController = CreateTrackerViewController()
+        let createTrackerViewController = NewTrackerViewController()
         let ncCreateTracker = UINavigationController(rootViewController: createTrackerViewController)
 
         navigationController?.present(ncCreateTracker, animated: true)

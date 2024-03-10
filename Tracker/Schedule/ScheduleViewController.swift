@@ -71,13 +71,11 @@ final class ScheduleViewController: UIViewController, UITableViewDataSource, UIT
     private func switchChanged(_ sender: UISwitch) {
         if sender.isOn {
             if let weekday = WeekDays(rawValue: sender.tag + 1) {
-                //print(weekday)
                 selectedDays.insert(weekday)
             }
             
         } else {
             if let weekday = WeekDays(rawValue: sender.tag + 1) {
-                //print(weekday)
                 selectedDays.remove(weekday)
             }
         }
