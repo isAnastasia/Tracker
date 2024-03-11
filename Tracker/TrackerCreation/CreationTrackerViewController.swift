@@ -12,32 +12,27 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
     
     var selectedWeekDays: Set<WeekDays> = [] {
         didSet {
-            print("days checked")
             checkIfSaveButtonCanBePressed()
         }
     }
-    var trackerCategory = "Работа" {
+    var trackerCategory = "Здоровье" {
         didSet {
-            print("category checked")
             checkIfSaveButtonCanBePressed()
         }
     }
     
     var trackerName: String? {
         didSet {
-            print("name checked")
             checkIfSaveButtonCanBePressed()
         }
     }
     var selectedEmoji: String? {
         didSet {
-            print("emoji checked")
             checkIfSaveButtonCanBePressed()
         }
     }
     var selectedColor: UIColor? {
         didSet {
-            print("color checked")
             checkIfSaveButtonCanBePressed()
         }
     }

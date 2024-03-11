@@ -12,8 +12,9 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
     lazy var currentCategories: [TrackerCategory] = {
         filterCategoriesToshow()
     }()
+    
     var categories: [TrackerCategory] = []
-    var completedTrackers: [TrackerRecord]?
+    var completedTrackers: [TrackerRecord] = []
     var currentDate = Date()
     
     let collectionView: UICollectionView = {
@@ -25,6 +26,7 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
     private var label = UILabel()
     private var navigationBar: UINavigationBar?
     private let datePicker = UIDatePicker()
+    private let searchController = UISearchController(searchResultsController: nil)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -45,11 +47,15 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
             return UICollectionViewCell()
         }
         cell.prepareForReuse()
-        
-        let track = currentCategories[indexPath.section].trackers[indexPath.row]
-        cell.text = track.name
-        cell.color = track.color
-        cell.emoji = track.emoji
+        cell.counterDelegate = self
+        let tracker = currentCategories[indexPath.section].trackers[indexPath.row]
+        cell.trackerInfo = TrackerInfoCell(
+            id: tracker.id,
+            name: tracker.name,
+            color: tracker.color,
+            emoji: tracker.emoji,
+            daysCount: calculateTimesTrackerWasCompleted(trackerId: tracker.id),
+            currentDay: currentDate)
         
         return cell
     }
@@ -116,6 +122,7 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
     }
     
     //MARK: - Collection Initialization
+    
     private func initCollection() {
         collectionView.backgroundColor = .white
         collectionView.register(TrackerCollectionViewCell.self, forCellWithReuseIdentifier: TrackerCollectionViewCell.identifier)
@@ -143,10 +150,13 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
         collectionView.backgroundView = backgroundView
     
     }
+    // MARK: - Setting Up Navigation Bar
+    
     private func setUpNavigationBar() {
         navigationBar = navigationController?.navigationBar
+        
         let addButton = UIBarButtonItem(image:  UIImage(named: "addButton") ?? UIImage(systemName: "plus"), style: .plain, target: self, action: #selector(addHabit))
-        addButton.tintColor = UIColor(named: "YP Black")
+        addButton.tintColor = .ypBlack
         navigationBar?.topItem?.leftBarButtonItem = addButton
         
         datePicker.datePickerMode = .date
@@ -157,35 +167,16 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
         navigationBar?.prefersLargeTitles = true
         navigationBar?.topItem?.title = "Трекеры"
 
-        let searchController = UISearchController(searchResultsController: nil)
+        searchController.searchResultsUpdater = self
+        searchController.searchBar.delegate = self
+        searchController.searchBar.placeholder = "Поиск"
         navigationItem.searchController = searchController
         
-    }
-    
-    @objc
-    private func addHabit() {
-        let createTrackerViewController = NewTrackerViewController()
-        let ncCreateTracker = UINavigationController(rootViewController: createTrackerViewController)
-
-        navigationController?.present(ncCreateTracker, animated: true)
-    }
-    
-    @objc
-    private func datePickerValueChanged(_ sender: UIDatePicker) {
-        let selectedDate = sender.date
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd.MM.yyyy"
-        let formattedDate = dateFormatter.string(from: selectedDate)
-        print("Выбранная дата: \(formattedDate)")
-        
-        currentDate = selectedDate
-        updateCollection()
     }
     
     private func filterCategoriesToshow() -> [TrackerCategory] {
         currentCategories = []
         let weekdayInt = Calendar.current.component(.weekday, from: currentDate)
-        print(weekdayInt)
         let day = (weekdayInt == 1) ?  WeekDays(rawValue: 7) : WeekDays(rawValue: weekdayInt - 1)
         
         categories.forEach { category in
@@ -202,9 +193,99 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
         return currentCategories
     }
 
-    private func updateCollection() {
+    private func updateCollectionAccordingToDate() {
         currentCategories = filterCategoriesToshow()
         collectionView.reloadData()
+    }
+    
+    //MARK: - Actions
+    
+    @objc
+    private func addHabit() {
+        let createTrackerViewController = NewTrackerViewController()
+        let ncCreateTracker = UINavigationController(rootViewController: createTrackerViewController)
+
+        navigationController?.present(ncCreateTracker, animated: true)
+    }
+    
+    @objc
+    private func datePickerValueChanged(_ sender: UIDatePicker) {
+        let selectedDate = sender.date
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd.MM.yyyy"
+        let formattedDate = dateFormatter.string(from: selectedDate)
+        
+        currentDate = selectedDate
+        updateCollectionAccordingToDate()
+    }
+}
+
+//MARK: - TrackerCounterDelegate
+
+extension TrackerViewController: TrackerCounterDelegate {
+    func calculateTimesTrackerWasCompleted(trackerId: UUID) -> Int {
+        let contains = completedTrackers.filter {
+            $0.id == trackerId
+        }
+        return contains.count
+    }
+    
+    func checkIfTrackerWasCompletedAtCurrentDay(trackerId: UUID, date: Date) -> Bool {
+        let contains = completedTrackers.filter {
+            ($0.id == trackerId && Calendar.current.isDate($0.date, equalTo: currentDate, toGranularity: .day))
+        }.count > 0
+        return contains
+    }
+    
+    func increaseTrackerCounter(trackerId: UUID, date: Date) {
+        completedTrackers.append(TrackerRecord(id: trackerId, date: date))
+    }
+    
+    func decreaseTrackerCounter(trackerId: UUID, date: Date) {
+        completedTrackers = completedTrackers.filter {
+            if $0.id == trackerId && Calendar.current.isDate($0.date, equalTo: currentDate, toGranularity: .day) {
+                return false
+            }
+            return true
+        }
+    }
+    
+    
+}
+
+//MARK: - SearchController
+
+extension TrackerViewController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        guard let text = searchController.searchBar.text else { return }
+        if text != "" {
+            updateCollectionAccordingToSearchBarResults(enteredName: text)
+        }
+    }
+    
+    private func updateCollectionAccordingToSearchBarResults(enteredName: String) {
+        currentCategories = []
+        categories.forEach { category in
+            let title = category.title
+            let trackers = category.trackers.filter { tracker in
+                //enteredName.contains(tracker.name)
+                tracker.name.contains(enteredName)
+            }
+            
+            if trackers.count > 0 {
+                currentCategories.append(TrackerCategory(title: title, trackers: trackers))
+            }
+        }
+        
+        collectionView.reloadData()
+    }
+}
+
+extension TrackerViewController: UISearchBarDelegate {
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchController.searchBar.text = ""
+        updateCollectionAccordingToDate()
+        //.searchBar.
     }
 }
 
