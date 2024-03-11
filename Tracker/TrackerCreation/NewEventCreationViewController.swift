@@ -12,25 +12,48 @@ final class NewEventCreationViewController: CreationTrackerViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        configureUIDelegate = self
+        configureUIDelegate?.setUpBackground()
     }
     
-    override func configureButtonsCell(cell: ButtonsCell) {
+    @objc
+    override func saveButtonPressed() {
+        guard let name = trackerName,
+              let color = selectedColor,
+              let emoji = selectedEmoji
+        else { return }
+        let week = WeekDays.allCases
+        let weekSet = Set(week)
+        let tracker = Tracker(
+            name: name,
+            color: color,
+            emoji: emoji,
+            schedule: weekSet,
+            state: .Event)
+        
+        creationDelegate?.createTracker(tracker: tracker, category: trackerCategory)
+        dismiss(animated: true)
+    }
+}
+
+//MARK: - ConfigureUIForTrackerCreationProtocol
+extension NewEventCreationViewController: ConfigureUIForTrackerCreationProtocol {
+    func configureButtonsCell(cell: ButtonsCell) {
         cell.prepareForReuse()
-        //cell.scheduleDelegate = self
         cell.state = .Event
     }
     
-    override  func setUpBackground() {
+    func setUpBackground() {
         self.title = "Новое нерегулярное событие"
         view.backgroundColor = .white
         navigationItem.hidesBackButton = true
     }
     
-    override func calculateTableViewHeight(width: CGFloat) -> CGSize {
+    func calculateTableViewHeight(width: CGFloat) -> CGSize {
         return CGSize(width: width, height: 75)
     }
     
-    override func checkIfSaveButtonCanBePressed() {
+    func checkIfSaveButtonCanBePressed() {
         if trackerName != nil,
            selectedEmoji != nil,
            selectedColor != nil,
@@ -41,28 +64,4 @@ final class NewEventCreationViewController: CreationTrackerViewController {
             saveButtonCanBePressed = false
         }
     }
-    
-    @objc
-    override func saveButtonPressed() {
-        guard let name = trackerName,
-              let color = selectedColor,
-              let emoji = selectedEmoji
-        else {
-            return
-        }
-        let week = WeekDays.allCases
-        let weekSet = Set(week)
-        let tracker = Tracker(
-            name: name,
-            color: color,
-            emoji: emoji,
-            schedule: weekSet,
-            state: .Event)
-        
-        
-        creationDelegate?.createTracker(tracker: tracker, category: trackerCategory)
-        dismiss(animated: true)
-        
-    }
-    
 }

@@ -40,9 +40,7 @@ final class ButtonsCell: UICollectionViewCell, UITableViewDataSource, UITableVie
     }
     
     func updateSubTitle(forCellAt indexPath: IndexPath, text: String) {
-        guard let cell = tableView.cellForRow(at: IndexPath(row: 1, section: 0)) as? ButtonTableViewCell  else {
-            return
-        }
+        guard let cell = tableView.cellForRow(at: IndexPath(row: 1, section: 0)) as? ButtonTableViewCell  else { return }
         cell.setUpSubtitleLabel(text: text)
     }
     
@@ -55,7 +53,6 @@ final class ButtonsCell: UICollectionViewCell, UITableViewDataSource, UITableVie
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         if indexPath.row == 0 {
-            //TODO categories view controller
             categoriesDelegate?.showCategoriesViewController()
         } else if indexPath.row == 1 {
             scheduleDelegate?.showScheduleViewController(viewController: ScheduleViewController())
@@ -108,9 +105,7 @@ final class ButtonsCell: UICollectionViewCell, UITableViewDataSource, UITableVie
     private func configureCell(cell: ButtonTableViewCell, at indexPath: IndexPath) {
         cell.prepareForReuse()
         
-        guard let state = state else {
-            return
-        }
+        guard let state = state else { return }
         if state == .Habit {
             switch indexPath.row {
             case 0:

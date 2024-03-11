@@ -9,15 +9,16 @@ import Foundation
 import UIKit
 
 final class ColorCell: UICollectionViewCell {
+    
+    let colorView = UIView()
+    static let identifier = "ColorCell"
+    
     override var isSelected: Bool {
         didSet {
             self.layer.borderWidth = self.isSelected ? 3 : 0
             self.layer.borderColor = self.isSelected ? colorView.backgroundColor?.withAlphaComponent(0.3).cgColor : UIColor.clear.cgColor
         }
     }
-    
-    let colorView = UIView()
-    static let identifier = "ColorCell"
     
     override init(frame: CGRect) {
         super.init(frame: frame)

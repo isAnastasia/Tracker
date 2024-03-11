@@ -32,7 +32,7 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
         super.viewDidLoad()
         view.backgroundColor = .white
         
-        initCategories()
+        //initCategories()
         initCollection()
         setUpNavigationBar()
     }
@@ -78,10 +78,8 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
                 for: indexPath) as? HeaderCollectionReusableView {
                 
                 sectionHeader.headerLabel.text = categories[indexPath.section].title
-                    
                 return sectionHeader
             }
-            
         }
         return UICollectionReusableView()
     }
@@ -105,19 +103,7 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
         return CGSize(width: collectionView.bounds.width, height: 46)
     }
     
-// MARK: - Private Functions
-    
-    private func initCategories() {
-        let track1 = Tracker(name: "Ходить в спортзал", color: .color8, emoji: "🥇", schedule: [WeekDays.monday, WeekDays.friday], state: .Habit)
-        let track2 = Tracker(name: "Прочитать 10 страниц", color: .color2, emoji: "😇", schedule: [WeekDays.tuesday, WeekDays.friday], state: .Habit)
-        categories.append(TrackerCategory(title: "Привычки", trackers: [track1, track2]))
-        
-        let track3 = Tracker(name: "Не есть сладкое", color: .color6, emoji: "😡", schedule: [WeekDays.monday, WeekDays.tuesday, WeekDays.wednesday, WeekDays.thursday, WeekDays.friday], state: .Habit)
-        let track4 = Tracker(name: "Сходить ко врачу", color: .color5, emoji: "🤔", schedule: [WeekDays.wednesday, WeekDays.sunday], state: .Habit)
-        categories.append(TrackerCategory(title: "Здоровье", trackers: [track3, track4]))
-    }
-    
-    //MARK: - Collection Initialization
+//MARK: - Collection Initialization
     
     private func initCollection() {
         collectionView.backgroundColor = .white
@@ -139,7 +125,8 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
             collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
         ])
     }
-    
+
+// MARK: - Private Functions
     private func showPlaceHolder() {
         let backgroundView = PlaceHolderView(frame: collectionView.frame)
         backgroundView.setUpNoTrackersState()
@@ -185,7 +172,6 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
                 currentCategories.append(TrackerCategory(title: title, trackers: trackers))
             }
         }
-        
         return currentCategories
     }
 
@@ -210,7 +196,6 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
         let selectedDate = sender.date
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "dd.MM.yyyy"
-        let formattedDate = dateFormatter.string(from: selectedDate)
         
         currentDate = selectedDate
         updateCollectionAccordingToDate()
@@ -246,12 +231,9 @@ extension TrackerViewController: TrackerCounterDelegate {
             return true
         }
     }
-    
-    
 }
 
 //MARK: - SearchController
-
 extension TrackerViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         guard let text = searchController.searchBar.text else { return }
@@ -265,7 +247,6 @@ extension TrackerViewController: UISearchResultsUpdating {
         categories.forEach { category in
             let title = category.title
             let trackers = category.trackers.filter { tracker in
-                //enteredName.contains(tracker.name)
                 tracker.name.contains(enteredName)
             }
             
@@ -273,7 +254,6 @@ extension TrackerViewController: UISearchResultsUpdating {
                 currentCategories.append(TrackerCategory(title: title, trackers: trackers))
             }
         }
-        
         collectionView.reloadData()
     }
 }
@@ -285,9 +265,10 @@ extension TrackerViewController: UISearchBarDelegate {
     }
 }
 
+// MARK: - TrackerCreationDelegate
 extension TrackerViewController: TrackerCreationDelegate {
     func createTracker(tracker: Tracker, category: String) {
-        var categoryFound = categories.filter{
+        let categoryFound = categories.filter{
             $0.title == category
         }
         
@@ -306,7 +287,6 @@ extension TrackerViewController: TrackerCreationDelegate {
         } else {
             categories.append(TrackerCategory(title: category, trackers: [tracker]))
         }
-        
         updateCollectionAccordingToDate()
     }
 }

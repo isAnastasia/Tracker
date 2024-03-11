@@ -9,14 +9,16 @@ import Foundation
 import UIKit
 
 final class EmojiCell: UICollectionViewCell {
+    
+    let label = UILabel()
+    static let identifier = "EmojiCell"
+    
     override var isSelected: Bool {
         didSet {
             self.backgroundColor = self.isSelected ? UIColor.ypLightGray : .clear
         }
     }
     
-    let label = UILabel()
-    static let identifier = "EmojiCell"
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -29,7 +31,6 @@ final class EmojiCell: UICollectionViewCell {
             label.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             label.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
         ])
-        
     }
     
     required init?(coder: NSCoder) {

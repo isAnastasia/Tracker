@@ -85,9 +85,7 @@ final class ScheduleViewController: UIViewController, UITableViewDataSource, UIT
     }
     
     private func configureCell(cell: ScheduleTableCell, cellForRowAt indexPath: IndexPath) {
-        guard let weekday = WeekDays(rawValue: indexPath.row + 1) else {
-            return
-        }
+        guard let weekday = WeekDays(rawValue: indexPath.row + 1) else { return }
         cell.textLabel?.text = weekday.name
         cell.prepareForReuse()
         cell.switchButton.tag = indexPath.row

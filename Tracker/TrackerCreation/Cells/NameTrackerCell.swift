@@ -32,9 +32,7 @@ final class NameTrackerCell: UICollectionViewCell {
     
     @objc
     func textFieldEditingChanged(_ textField: UITextField) {
-        guard let text = trackerNameTextField.text else {
-            return
-        }
+        guard let text = trackerNameTextField.text else { return }
         delegate?.textFieldWasChanged(text: text)
     }
     

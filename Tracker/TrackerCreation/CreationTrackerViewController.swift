@@ -8,37 +8,33 @@
 import Foundation
 import UIKit
 
-protocol TrackerCreationDelegate: AnyObject {
-    func createTracker(tracker: Tracker, category: String)
-}
-
 class CreationTrackerViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-    weak var creationDelegate: TrackerCreationDelegate?
     
+    weak var creationDelegate: TrackerCreationDelegate?
+    weak var configureUIDelegate: ConfigureUIForTrackerCreationProtocol?
     var selectedWeekDays: Set<WeekDays> = [] {
         didSet {
-            checkIfSaveButtonCanBePressed()
+            configureUIDelegate?.checkIfSaveButtonCanBePressed()
         }
     }
     var trackerCategory = "Здоровье" {
         didSet {
-            checkIfSaveButtonCanBePressed()
+            configureUIDelegate?.checkIfSaveButtonCanBePressed()
         }
     }
-    
     var trackerName: String? {
         didSet {
-            checkIfSaveButtonCanBePressed()
+            configureUIDelegate?.checkIfSaveButtonCanBePressed()
         }
     }
     var selectedEmoji: String? {
         didSet {
-            checkIfSaveButtonCanBePressed()
+            configureUIDelegate?.checkIfSaveButtonCanBePressed()
         }
     }
     var selectedColor: UIColor? {
         didSet {
-            checkIfSaveButtonCanBePressed()
+            configureUIDelegate?.checkIfSaveButtonCanBePressed()
         }
     }
     var saveButtonCanBePressed: Bool? {
@@ -66,7 +62,6 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
     private let stackView = UIStackView()
     private let saveButton = UIButton()
     private let cancelButton = UIButton()
-
     private let allEmojies = [ "🙂", "😻", "🌺", "🐶", "❤️", "😱",
                                "😇", "😡", "🥶", "🤔", "🙌", "🍔",
                                "🥦", "🏓", "🥇", "🎸", "🏝️", "😪"]
@@ -78,7 +73,6 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setUpBackground()
         setUpStackViewWithButtons()
         initCollection()
         
@@ -88,7 +82,6 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
     }
     
     //MARK: - Actions
-    
     @objc
     func dismissKeyboard() {
         view.endEditing(true)
@@ -104,9 +97,7 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
         guard let name = trackerName,
               let color = selectedColor,
               let emoji = selectedEmoji
-        else {
-            return
-        }
+        else { return }
         let tracker = Tracker(
             name: name,
             color: color,
@@ -120,7 +111,6 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
     }
     
     //MARK: - Data Source
-    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         switch section {
         case 0, 1:
@@ -148,7 +138,7 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ButtonsCell.identifier, for: indexPath) as? ButtonsCell else {
                 return UICollectionViewCell()
             }
-            configureButtonsCell(cell: cell)
+            configureUIDelegate?.configureButtonsCell(cell: cell)
             return cell
         case 2:
             return configureEmojiCell(cellForItemAt: indexPath)
@@ -183,10 +173,10 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
                     return sectionHeader
                 }
             }
-
         }
         return UICollectionReusableView()
     }
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         switch section {
         case 2, 3:
@@ -194,7 +184,6 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
         default:
             return CGSize(width: collectionView.bounds.width, height: 0)
         }
-        
     }
     
     private func configureEmojiCell(cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -203,27 +192,9 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
         }
         
         cell.label.text = allEmojies[indexPath.row]
-        
         return cell
     }
     
-    //MARK: - Must Be Overridden
-    func configureButtonsCell(cell: ButtonsCell) {
-        preconditionFailure("This method must be overridden")
-    }
-    
-    func setUpBackground() {
-        preconditionFailure("This method must be overridden")
-    }
-    
-    func calculateTableViewHeight(width: CGFloat) -> CGSize {
-        preconditionFailure("This method must be overridden")
-    }
-    
-    func checkIfSaveButtonCanBePressed() {
-        preconditionFailure("This method must be overridden")
-    }
-
     //MARK: - Delegate
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         let cellWidth = collectionView.frame.width - 16 * 2
@@ -232,7 +203,7 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
         case 0:
             return CGSize(width: cellWidth, height: 75)
         case 1:
-            return calculateTableViewHeight(width: cellWidth)
+            return configureUIDelegate?.calculateTableViewHeight(width: cellWidth) ?? CGSize(width: cellWidth, height: 150)
         case 2, 3:
             let width = collectionView.frame.width - 18 * 2
             return CGSize(width: width / 6, height: width / 6)
@@ -253,12 +224,12 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
         default:
             return UIEdgeInsets(top: 24, left: 16, bottom: 0, right: 16)
         }
-        
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return 0
     }
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
         return 0
     }
@@ -271,7 +242,6 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
         if indexPath.section == 2 {
             selectedEmoji = nil
-            
         } else if indexPath.section == 3 {
             selectedColor = nil
         }
@@ -284,25 +254,19 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
                 collectionView.deselectItem(at: indexPath, animated: true)
                 return
             }
-            guard let emoji = cell.label.text else {
-                return
-            }
+            guard let emoji = cell.label.text else { return }
             selectedEmoji = emoji
-            
         } else if indexPath.section == 3 {
             guard let cell = collectionView.cellForItem(at: indexPath) as? ColorCell else {
                 collectionView.deselectItem(at: indexPath, animated: true)
                 return
             }
-            guard let color = cell.colorView.backgroundColor else {
-                return
-            }
+            guard let color = cell.colorView.backgroundColor else { return }
             selectedColor = color
         } else {
             collectionView.deselectItem(at: indexPath, animated: true)
         }
     }
-    
     
     //MARK: - Collection initialisation
     private func initCollection() {
@@ -327,7 +291,6 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
             collectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: stackView.topAnchor, constant: -16)
         ])
-        
     }
     
     //MARK: - Setting Up StackView & Buttons
@@ -340,7 +303,6 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
         saveButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             saveButton.heightAnchor.constraint(equalToConstant: 60),
-            
         ])
     }
     
@@ -384,7 +346,6 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
 }
 
 //MARK: - SaveNameTrackerDelegate
-
 extension CreationTrackerViewController: SaveNameTrackerDelegate {
     func textFieldWasChanged(text: String) {
         if text == "" {
@@ -396,7 +357,6 @@ extension CreationTrackerViewController: SaveNameTrackerDelegate {
 }
 
 //MARK: - ShowCategoriesDelegate
-
 extension CreationTrackerViewController: ShowCategoriesDelegate {
     func showCategoriesViewController() {
         // TODO

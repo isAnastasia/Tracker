@@ -8,34 +8,6 @@
 import Foundation
 import UIKit
 
-protocol TrackerCounterDelegate: AnyObject {
-    func increaseTrackerCounter(trackerId: UUID, date: Date)
-    func decreaseTrackerCounter(trackerId: UUID, date: Date)
-    func checkIfTrackerWasCompletedAtCurrentDay(trackerId: UUID, date: Date) -> Bool
-    func calculateTimesTrackerWasCompleted(trackerId: UUID) -> Int
-}
-
-struct TrackerInfoCell {
-    let id: UUID
-    let name: String
-    let color: UIColor
-    let emoji: String
-    
-    let daysCount: Int
-    let currentDay: Date
-    let state: State
-    
-    init(id: UUID, name: String, color: UIColor, emoji: String, daysCount: Int, currentDay: Date, state: State) {
-        self.id = id
-        self.name = name
-        self.color = color
-        self.emoji = emoji
-        self.daysCount = daysCount
-        self.currentDay = currentDay
-        self.state = state
-    }
-}
-
 final class TrackerCollectionViewCell: UICollectionViewCell {
     static let identifier = "TrackerCell"
     
@@ -53,14 +25,13 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         }
     }
     var color: UIColor?
+    var isPinned: Bool = false
     var daysCount: Int = 0 {
         didSet {
             updateDaysCountLabel()
         }
     }
-    
-    var isPinned: Bool = false
-    
+
     let addButton = UIButton(type: .custom)
     let card = UIView()
     let circle = UIView()
@@ -71,17 +42,12 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
         contentView.addSubview(card)
         setUpCard()
-        
         card.addSubview(circle)
         setUpCircle()
-        
         setUpEmojiLabel()
-        
         setUpTitle()
-        
         setUpPinImageView()
         setUpAddButton()
         setUpDaysCountLabel()
@@ -91,7 +57,35 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
-    
+
+    //MARK: - Actions
+    @objc
+    func buttonClicked() {
+        if !checkIfTrackerWasCompleted() {
+            guard let id = trackerInfo?.id,
+                  let currentDay = trackerInfo?.currentDay,
+                  let state = trackerInfo?.state else { return }
+            
+            if currentDay > Date() { return }
+            addButton.setImage(UIImage(named: "Done"), for: .normal)
+            addButton.backgroundColor = color?.withAlphaComponent(0.3)
+            
+            // увеличить счетчик
+            counterDelegate?.increaseTrackerCounter(trackerId: id, date: currentDay)
+            daysCount = counterDelegate?.calculateTimesTrackerWasCompleted(trackerId: id) ?? daysCount
+        } else {
+            
+            addButton.setImage(UIImage(systemName: "plus"), for: .normal)
+            addButton.backgroundColor = color
+            guard let id = trackerInfo?.id ,
+                  let currentDay = trackerInfo?.currentDay else { return }
+            // уменьшить счетчик
+            counterDelegate?.decreaseTrackerCounter(trackerId: id, date: currentDay)
+            daysCount = counterDelegate?.calculateTimesTrackerWasCompleted(trackerId: id) ?? daysCount
+        }
+    }
+
+    //MARK: - Private Methods
     private func checkIfTrackerWasCompleted() -> Bool {
         guard let id = trackerInfo?.id,
               let currentDay = trackerInfo?.currentDay,
@@ -100,7 +94,8 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         }
         return delegate.checkIfTrackerWasCompletedAtCurrentDay(trackerId: id, date: currentDay)
     }
-    func updateDaysCountLabel() {
+    
+    private func updateDaysCountLabel() {
         let digit = daysCount % 10
         var days: String
         switch digit {
@@ -114,6 +109,19 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         daysCountLabel.text = String(daysCount) + " " + days
     }
     
+    private func updateAddButton() {
+        if checkIfTrackerWasCompleted() {
+            addButton.setImage(UIImage(named: "Done"), for: .normal)
+            addButton.backgroundColor = color?.withAlphaComponent(0.3)
+        } else {
+            addButton.setImage(UIImage(systemName: "plus"), for: .normal)
+            addButton.backgroundColor = color
+        }
+        addButton.layer.cornerRadius = 17
+        addButton.tintColor = UIColor.white
+    }
+    
+    //MARK: - Setting Up UI
     private func setUpDaysCountLabel() {
         contentView.addSubview(daysCountLabel)
         daysCountLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
@@ -126,17 +134,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
             daysCountLabel.trailingAnchor.constraint(equalTo: addButton.leadingAnchor, constant: -8)
         ])
     }
-    func updateAddButton() {
-        if checkIfTrackerWasCompleted() {
-            addButton.setImage(UIImage(named: "Done"), for: .normal)
-            addButton.backgroundColor = color?.withAlphaComponent(0.3)
-        } else {
-            addButton.setImage(UIImage(systemName: "plus"), for: .normal)
-            addButton.backgroundColor = color
-        }
-        addButton.layer.cornerRadius = 17
-        addButton.tintColor = UIColor.white
-    }
+    
     private func setUpAddButton() {
         contentView.addSubview(addButton)
         updateAddButton()
@@ -149,40 +147,6 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
             addButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16),
             addButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12)
         ])
-    }
-    
-    @objc
-    func buttonClicked() {
-        if !checkIfTrackerWasCompleted() {
-            guard let id = trackerInfo?.id,
-                  let currentDay = trackerInfo?.currentDay,
-                    let state = trackerInfo?.state else {
-                return
-            }
-            
-            
-            if currentDay > Date() {
-                return
-            }
-            addButton.setImage(UIImage(named: "Done"), for: .normal)
-            addButton.backgroundColor = color?.withAlphaComponent(0.3)
-            
-            // увеличить счетчик
-            counterDelegate?.increaseTrackerCounter(trackerId: id, date: currentDay)
-            daysCount = counterDelegate?.calculateTimesTrackerWasCompleted(trackerId: id) ?? daysCount
-        } else {
-            
-            addButton.setImage(UIImage(systemName: "plus"), for: .normal)
-            addButton.backgroundColor = color
-            guard let id = trackerInfo?.id ,
-                  let currentDay = trackerInfo?.currentDay else {
-                return
-            }
-            // уменьшить счетчик
-            counterDelegate?.decreaseTrackerCounter(trackerId: id, date: currentDay)
-            daysCount = counterDelegate?.calculateTimesTrackerWasCompleted(trackerId: id) ?? daysCount
-        }
-        
     }
     
     private func setUpPinImageView() {
@@ -198,7 +162,6 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     }
     
     private func setUpTitle() {
-        
         titleLabel.textColor = .white
         titleLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         titleLabel.numberOfLines = 0

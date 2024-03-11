@@ -8,7 +8,6 @@
 import Foundation
 import UIKit
 
-
 final class ButtonTableViewCell: UITableViewCell {
     
     static let identifier = "ButtonTableViewCell"
@@ -46,7 +45,6 @@ final class ButtonTableViewCell: UITableViewCell {
             subtitleLabel.text = ""
             stackView.removeArrangedSubview(subtitleLabel)
         }
-        
     }
     
     private func setUpTitleLabel() {

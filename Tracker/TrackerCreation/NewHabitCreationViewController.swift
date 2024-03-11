@@ -13,41 +13,11 @@ final class NewHabitCreationViewController: CreationTrackerViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        configureUIDelegate = self
+        configureUIDelegate?.setUpBackground()
     }
-    
-    override func configureButtonsCell(cell: ButtonsCell) {
-        cell.prepareForReuse()
-        cell.scheduleDelegate = self
-        cell.state = .Habit
-    }
-    
-    override  func setUpBackground() {
-        self.title = "Новая привычка"
-        view.backgroundColor = .white
-        navigationItem.hidesBackButton = true
-    }
-    
-    override func calculateTableViewHeight(width: CGFloat) -> CGSize {
-        return CGSize(width: width, height: 150)
-    }
-    
-    override func checkIfSaveButtonCanBePressed() {
-        if trackerName != nil,
-           selectedEmoji != nil,
-           selectedColor != nil,
-           trackerCategory != nil,
-           !selectedWeekDays.isEmpty
-        {
-            saveButtonCanBePressed = true
-        } else {
-            saveButtonCanBePressed = false
-        }
-    }
-    
     
     //MARK: - Private Methods
-
     private func convertSelectedDaysToString() -> String {
         var scheduleSubText = String()
         
@@ -66,13 +36,11 @@ final class NewHabitCreationViewController: CreationTrackerViewController {
             return ""
         }
 
-
         return scheduleSubText
     }
 }
 
 //MARK: - ShowScheduleDelegate
-
 extension NewHabitCreationViewController: ShowScheduleDelegate {
     func showScheduleViewController(viewController: ScheduleViewController) {
         viewController.sheduleDelegate = self
@@ -83,7 +51,6 @@ extension NewHabitCreationViewController: ShowScheduleDelegate {
 
 
 //MARK: - ScheduleProtocol
-
 extension NewHabitCreationViewController: ScheduleProtocol {
     func saveSelectedDays(selectedDays: Set<WeekDays>) {
         if (selectedDays.isEmpty) {
@@ -101,5 +68,36 @@ extension NewHabitCreationViewController: ScheduleProtocol {
                 text: convertSelectedDaysToString())
         }
     }
+}
 
+//MARK: - ConfigureUIForTrackerCreationProtocol
+extension NewHabitCreationViewController: ConfigureUIForTrackerCreationProtocol {
+    func configureButtonsCell(cell: ButtonsCell) {
+        cell.prepareForReuse()
+        cell.scheduleDelegate = self
+        cell.state = .Habit
+    }
+    
+    func setUpBackground() {
+        self.title = "Новая привычка"
+        view.backgroundColor = .white
+        navigationItem.hidesBackButton = true
+    }
+    
+    func calculateTableViewHeight(width: CGFloat) -> CGSize {
+        return CGSize(width: width, height: 150)
+    }
+    
+    func checkIfSaveButtonCanBePressed() {
+        if trackerName != nil,
+           selectedEmoji != nil,
+           selectedColor != nil,
+           trackerCategory != nil,
+           !selectedWeekDays.isEmpty
+        {
+            saveButtonCanBePressed = true
+        } else {
+            saveButtonCanBePressed = false
+        }
+    }
 }
