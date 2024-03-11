@@ -8,7 +8,12 @@
 import Foundation
 import UIKit
 
+protocol TrackerCreationDelegate: AnyObject {
+    func createTracker(tracker: Tracker, category: String)
+}
+
 class CreationTrackerViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    weak var creationDelegate: TrackerCreationDelegate?
     
     var selectedWeekDays: Set<WeekDays> = [] {
         didSet {
@@ -95,7 +100,22 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
     }
     
     @objc
-    private func saveButtonPressed() {
+    func saveButtonPressed() {
+        guard let name = trackerName,
+              let color = selectedColor,
+              let emoji = selectedEmoji
+        else {
+            return
+        }
+        let tracker = Tracker(
+            name: name,
+            color: color,
+            emoji: emoji,
+            schedule: selectedWeekDays,
+            state: .Habit)
+        
+        creationDelegate?.createTracker(tracker: tracker, category: trackerCategory)
+        dismiss(animated: true)
         
     }
     
@@ -248,7 +268,17 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
         return true
     }
     
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        if indexPath.section == 2 {
+            selectedEmoji = nil
+            
+        } else if indexPath.section == 3 {
+            selectedColor = nil
+        }
+    }
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
         if indexPath.section == 2 {
             guard let cell = collectionView.cellForItem(at: indexPath) as? EmojiCell else {
                 collectionView.deselectItem(at: indexPath, animated: true)
@@ -303,7 +333,7 @@ class CreationTrackerViewController: UIViewController, UICollectionViewDataSourc
     //MARK: - Setting Up StackView & Buttons
     private func setUpSaveButton() {
         saveButton.setTitle("Сохранить", for: .normal)
-        saveButton.backgroundColor = UIColor(named: "YP Dark Gray") ?? .gray
+        saveButton.backgroundColor = UIColor.ypGray
         saveButton.layer.cornerRadius = 16
         saveButton.addTarget(self, action: #selector(saveButtonPressed), for: .touchUpInside)
         

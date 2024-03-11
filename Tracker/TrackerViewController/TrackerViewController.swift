@@ -55,7 +55,8 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
             color: tracker.color,
             emoji: tracker.emoji,
             daysCount: calculateTimesTrackerWasCompleted(trackerId: tracker.id),
-            currentDay: currentDate)
+            currentDay: currentDate,
+            state: tracker.state)
         
         return cell
     }
@@ -107,18 +108,13 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
 // MARK: - Private Functions
     
     private func initCategories() {
-        let track1 = Tracker(name: "Ходить в спортзал", color: UIColor(named: "Blue") ?? UIColor.blue, emoji: "😎", schedule: [WeekDays.monday, WeekDays.friday])
-        let track2 = Tracker(name: "Прочитать 10 страниц", color: UIColor(named: "Orange") ?? UIColor.orange, emoji: "👻", schedule: [WeekDays.tuesday, WeekDays.friday])
+        let track1 = Tracker(name: "Ходить в спортзал", color: .color8, emoji: "🥇", schedule: [WeekDays.monday, WeekDays.friday], state: .Habit)
+        let track2 = Tracker(name: "Прочитать 10 страниц", color: .color2, emoji: "😇", schedule: [WeekDays.tuesday, WeekDays.friday], state: .Habit)
         categories.append(TrackerCategory(title: "Привычки", trackers: [track1, track2]))
         
-        let track3 = Tracker(name: "Не есть сладкое", color: UIColor(named: "Fuchsia") ?? UIColor.systemPink, emoji: "💦", schedule: [WeekDays.monday, WeekDays.tuesday, WeekDays.wednesday, WeekDays.thursday, WeekDays.friday])
-        let track4 = Tracker(name: "Сходить ко врачу", color: UIColor(named: "Green") ??  UIColor.green, emoji: "🖐️", schedule: [WeekDays.wednesday])
-        let track5 = Tracker(
-            name: "Пробежать 10 км",
-            color: UIColor(named: "Red") ?? UIColor.red,
-            emoji: "⚽",
-            schedule: [WeekDays.sunday])
-        categories.append(TrackerCategory(title: "Здоровье", trackers: [track3, track4, track5]))
+        let track3 = Tracker(name: "Не есть сладкое", color: .color6, emoji: "😡", schedule: [WeekDays.monday, WeekDays.tuesday, WeekDays.wednesday, WeekDays.thursday, WeekDays.friday], state: .Habit)
+        let track4 = Tracker(name: "Сходить ко врачу", color: .color5, emoji: "🤔", schedule: [WeekDays.wednesday, WeekDays.sunday], state: .Habit)
+        categories.append(TrackerCategory(title: "Здоровье", trackers: [track3, track4]))
     }
     
     //MARK: - Collection Initialization
@@ -203,8 +199,9 @@ final class TrackerViewController: UIViewController, UICollectionViewDataSource,
     @objc
     private func addHabit() {
         let createTrackerViewController = NewTrackerViewController()
+        createTrackerViewController.delegate = self
         let ncCreateTracker = UINavigationController(rootViewController: createTrackerViewController)
-
+        
         navigationController?.present(ncCreateTracker, animated: true)
     }
     
@@ -285,7 +282,31 @@ extension TrackerViewController: UISearchBarDelegate {
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         searchController.searchBar.text = ""
         updateCollectionAccordingToDate()
-        //.searchBar.
     }
 }
 
+extension TrackerViewController: TrackerCreationDelegate {
+    func createTracker(tracker: Tracker, category: String) {
+        var categoryFound = categories.filter{
+            $0.title == category
+        }
+        
+        var trackers: [Tracker] = []
+        if categoryFound.count > 0 {
+            categoryFound.forEach{
+                trackers = trackers + $0.trackers
+            }
+            trackers.append(tracker)
+            categories = categories.filter{
+                $0.title != category
+            }
+            if !trackers.isEmpty {
+                categories.append(TrackerCategory(title: category, trackers: trackers))
+            }
+        } else {
+            categories.append(TrackerCategory(title: category, trackers: [tracker]))
+        }
+        
+        updateCollectionAccordingToDate()
+    }
+}

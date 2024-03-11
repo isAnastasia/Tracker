@@ -15,17 +15,13 @@ public struct Tracker {
     let emoji: String
     //let schedule: [WeekDays]
     let schedule: Set<WeekDays>
-    
-//    init(name: String, color: UIColor, emoji: String, schedule: [WeekDays]) {
-//        self.name = name
-//        self.color = color
-//        self.emoji = emoji
-//        self.schedule = schedule
-//    }
-    init(name: String, color: UIColor, emoji: String, schedule: Set<WeekDays>) {
+    let state: State
+
+    init(name: String, color: UIColor, emoji: String, schedule: Set<WeekDays>, state: State) {
         self.name = name
         self.color = color
         self.emoji = emoji
         self.schedule = schedule
+        self.state = state
     }
 }

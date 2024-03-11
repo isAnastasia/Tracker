@@ -50,15 +50,22 @@ final class NewHabitCreationViewController: CreationTrackerViewController {
 
     private func convertSelectedDaysToString() -> String {
         var scheduleSubText = String()
-        selectedWeekDays.sorted {
-            $0.rawValue < $1.rawValue
-        }.forEach { day in
-            scheduleSubText += day.shortName
-            scheduleSubText += ", "
-        }
-        if (scheduleSubText.count > 1) {
+        
+        let weekSet = Set(WeekDays.allCases)
+        if selectedWeekDays == weekSet {
+            scheduleSubText = "Каждый день"
+        } else if !selectedWeekDays.isEmpty {
+            selectedWeekDays.sorted {
+                $0.rawValue < $1.rawValue
+            }.forEach { day in
+                scheduleSubText += day.shortName
+                scheduleSubText += ", "
+            }
             scheduleSubText = String(scheduleSubText.dropLast(2))
+        } else {
+            return ""
         }
+
 
         return scheduleSubText
     }

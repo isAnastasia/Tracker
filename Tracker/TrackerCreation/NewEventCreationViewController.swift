@@ -42,14 +42,27 @@ final class NewEventCreationViewController: CreationTrackerViewController {
         }
     }
     
+    @objc
+    override func saveButtonPressed() {
+        guard let name = trackerName,
+              let color = selectedColor,
+              let emoji = selectedEmoji
+        else {
+            return
+        }
+        let week = WeekDays.allCases
+        let weekSet = Set(week)
+        let tracker = Tracker(
+            name: name,
+            color: color,
+            emoji: emoji,
+            schedule: weekSet,
+            state: .Event)
+        
+        
+        creationDelegate?.createTracker(tracker: tracker, category: trackerCategory)
+        dismiss(animated: true)
+        
+    }
+    
 }
-
-//extension NewEventCreationViewController: ShowScheduleDelegate {
-//    func showCategoriesViewController() {
-//        // TODO
-//    }
-//
-//    func showScheduleViewController(viewController: ScheduleViewController) {
-//        // NOTHING
-//    }
-//}

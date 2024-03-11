@@ -23,14 +23,16 @@ struct TrackerInfoCell {
     
     let daysCount: Int
     let currentDay: Date
+    let state: State
     
-    init(id: UUID, name: String, color: UIColor, emoji: String, daysCount: Int, currentDay: Date) {
+    init(id: UUID, name: String, color: UIColor, emoji: String, daysCount: Int, currentDay: Date, state: State) {
         self.id = id
         self.name = name
         self.color = color
         self.emoji = emoji
         self.daysCount = daysCount
         self.currentDay = currentDay
+        self.state = state
     }
 }
 
@@ -148,13 +150,16 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
             addButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12)
         ])
     }
+    
     @objc
     func buttonClicked() {
         if !checkIfTrackerWasCompleted() {
             guard let id = trackerInfo?.id,
-                  let currentDay = trackerInfo?.currentDay else {
+                  let currentDay = trackerInfo?.currentDay,
+                    let state = trackerInfo?.state else {
                 return
             }
+            
             
             if currentDay > Date() {
                 return
@@ -182,7 +187,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     
     private func setUpPinImageView() {
         let image = UIImage(named: "pin.png")
-        pinImageView.image = image
+        //pinImageView.image = image
         card.addSubview(pinImageView)
         
         pinImageView.translatesAutoresizingMaskIntoConstraints = false
@@ -193,18 +198,17 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     }
     
     private func setUpTitle() {
-        card.addSubview(titleLabel)
+        
         titleLabel.textColor = .white
         titleLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
-        titleLabel.numberOfLines = 2
-        titleLabel.contentMode = .bottom
+        titleLabel.numberOfLines = 0
+        card.addSubview(titleLabel)
         
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            titleLabel.heightAnchor.constraint(equalToConstant: 34),
             titleLabel.widthAnchor.constraint(equalToConstant: contentView.frame.width - 12 * 2),
-            titleLabel.topAnchor.constraint(equalTo: card.topAnchor, constant: 44),
+            titleLabel.bottomAnchor.constraint(equalTo: card.bottomAnchor, constant: -12),
             titleLabel.leadingAnchor.constraint(equalTo: card.leadingAnchor, constant: 12)
         ])
     }

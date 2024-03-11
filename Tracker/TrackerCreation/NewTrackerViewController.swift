@@ -9,6 +9,8 @@ import Foundation
 import UIKit
 
 final class NewTrackerViewController: UIViewController {
+    weak var delegate: TrackerCreationDelegate?
+    
     private var newHabbitButton = UIButton()
     private var newEventButton = UIButton()
     
@@ -24,12 +26,14 @@ final class NewTrackerViewController: UIViewController {
     @objc
     private func newHabbitPressed() {
         let vc = NewHabitCreationViewController()
+        vc.creationDelegate = delegate
         self.navigationController?.pushViewController(vc, animated: true)
     }
     
     @objc
     private func newEventPressed() {
         let vc = NewEventCreationViewController()
+        vc.creationDelegate = delegate
         self.navigationController?.pushViewController(vc, animated: true)
     }
     
